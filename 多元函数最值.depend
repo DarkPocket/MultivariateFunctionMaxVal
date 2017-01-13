@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1484305759 source:f:\codesave\c\多元函数最值\main.c
+	<math.h>
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+
