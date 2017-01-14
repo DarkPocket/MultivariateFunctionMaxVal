@@ -9,9 +9,9 @@
 
 #define Pmin 0
 #define Pmax 20
-const double absError = 0.01;
+const double absError = 0.1;
 
-#define MAX_INTERVAL   1  //最大间隔
+#define MAX_INTERVAL   2  //最大间隔
 #define MIN_INTERVAL  0.001
 int debug = 0;
 void douInit(double n[], int m);
@@ -83,7 +83,10 @@ double fxCalculate( double x[], int amout )
         double y = 0;
 
 
-        y = -(x[1] - 2) * (x[1] - 2) + 10 - (x[2] - 10) * (x[2] - 10) + 2  - (x[3] - 5) * (x[3] - 5) + 12   - (x[4] - 7) * (x[4] - 7) + 8  ;
+        y = -(x[1] - 2) * (x[1] - 2) + 10 - (x[2] - 10.8) * (x[2] - 10.8) + 2  - (x[3] - 4.5) * (x[3] - 4.5) + 12   - (x[4] - 7) * (x[4] - 7) + 8 ;
+
+
+        y = y - (x[5] - 10.7) * (x[5] - 10.7) + 8 ;
         x[0] = y;
 
         return y;
@@ -172,7 +175,7 @@ void showArray( double P[], int n)
         int i = 0;
         printf("\n   showArray\n");
 
-        printf(" y=%0.9lf " , P[i]);
+        printf(" y=%0.5lf " , P[i]);
         for (i = 1; i <= n; i++)
         {
                 printf(" P[%d]=%0.6lf ", i, P[i]);
@@ -185,16 +188,44 @@ void showArray( double P[], int n)
 //Multivariate function
 
 //进度
-void schedule(  long int t , int m )
+void schedule( double t , int m )
 {
+        static double f = 0;
         double x = 0;
-        x = (Pmax - Pmin) / MIN_INTERVAL ;
+        double h = 0;
+        x =   (Pmax - Pmin) / MIN_INTERVAL ;
+
+
+
+
         x =  pow(  x, m ) ;
+
+        //     printf( "x pow   %lf  %% \n", x);
         double s = 0;
 
-        s = t / x;
+        s =  t / x;
 
-        printf( "  %lf  %% ", s * 100);
+        h = x / 100;
+
+        //   printf( " t %lf  f=%lf  %lf  %%   x=%lf\n",t, f, s * 100,x );
+
+
+        if (f <= 0)
+        {
+                printf( "   %lf %% \n" , s * 100);
+                f += absError / 10;
+        }
+
+        if (   fabs(  f - s ) > absError  )
+        {
+                f = s;
+                printf( "   %lf %% \n" , s * 100);
+                //   printf( "f=%lf  %lf  %% ", f, s * 100);
+                getchar( );
+        }
+
+
+
 
 
 }
@@ -206,11 +237,11 @@ double  calculateMultivariateFunction ( FILE * fp  )
         double  Result[X_MAX_NUM] = {0};
         double x[X_MAX_NUM] = {0};
         //从x1开始  ，x0存y值
-        int xAmount = 4;
+        int xAmount = 5;
         // Δ δ delta delt 德尔塔
         double deltaT = absError;
         double tempY = 0, maxY = 0;
-        long int times = 0;
+        double times = 0;
 
         douInit(x, xAmount);
 
@@ -238,7 +269,7 @@ double  calculateMultivariateFunction ( FILE * fp  )
                         {
                                 Result[i] = x[i];
                         }
-                        if (times % 100 == 0)
+                        if ((long int )times % 25 == 0)
                         {
                                 //  printf("  上升 \n");
                                 printf("  tempY  \n Result  \n");
@@ -264,6 +295,8 @@ double  calculateMultivariateFunction ( FILE * fp  )
                 //
                 times++;
 
+
+                schedule(times, xAmount);
                 /*
                 //schedule
                 //    if ( 2 - Result[1] < absError)
@@ -302,10 +335,15 @@ int test ( )
         //   printf( "  %f ",min( 4,-5.6) ) ;
         debug = 1;
         int i, j;
-        for (i = 0; i < 20; i++)
+
+
+        double   t = 1;
+        for (i = 0; i < 22; i++)
         {
-                for (j = 0; j < 20; j++)
+                for (j = 0; j < 31; j++)
                 {
+                        //    t = t * 2;
+                        //     schedule(  t,   4 );
                         //                     adjustmentInterval( i, j  );
                 }
         }
