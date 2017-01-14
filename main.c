@@ -9,8 +9,10 @@
 
 #define Pmin 0
 #define Pmax 20
-const double absError = 0.0001;
+const double absError = 0.01;
 
+#define MAX_INTERVAL   1  //最大间隔
+#define MIN_INTERVAL  0.001
 int debug = 0;
 void douInit(double n[], int m);
 
@@ -18,8 +20,8 @@ double fxCalculate( double X[], int amout ) ; //函数表达式
 
 void  bubble_sort (double a[][X_MAX_NUM], int n);
 void xCarry(double X[], int amout );
-double adjustmentInterval(   double deltaY, double y );
 
+double adjustmentInterval(   double tempY, double MaxY);
 
 //进位carry
 
@@ -108,25 +110,57 @@ void xCarry(double x[], int amout )
 
 }
 
-double adjustmentInterval(   double deltaY, double y)
+double min( double a, double b )
+{
+        return a < b ? a : b ;
+}
+
+double adjustmentInterval(   double tempY, double MaxY)
 {
         //调整x累加间隔
         double deltaT = 0;
-        double k = 10;
+        double k = 100, m = 1, n = 0;
+        int c = 1;
         double a = 0;
+        double deltaY = 0;
+        double y = 0;
+        n = 10;
+        if ( tempY - MaxY > 0 )
+        {
+                //   c = -1;
+                y = tempY;
+        }
+        else
+        {
+                y = MaxY;
+                c = 1;
+        }
 
-        deltaT = k * exp(deltaY / y) * absError;
+        deltaY = fabs(tempY - MaxY);
+        y = min(fabs(tempY), fabs(MaxY));
+
+        //   m = k * exp(deltaY * c / y / k);
+        m = (deltaY * c  / n);
+        m = k * exp(m);
+        deltaT = m * absError;
 
         if (deltaT < absError)
         {
-                deltaT = absError; getchar( );
+                deltaT = MIN_INTERVAL;
+
+        }
+        if (deltaT > MAX_INTERVAL)
+        {
+
+                deltaT = MAX_INTERVAL ;
         }
 
 
         if (debug )
         {
-
-                printf("y=%lf deltaY=%lf  deltaT=%lf\n", y, deltaY, deltaT);
+                printf(" y=%lf  * X=%lf\n", m, deltaT);
+                //   printf(" k=%lf  y %lf ,c %d ,n %lf exp=%lf\n", k ,  deltaY,c,n, exp((deltaY * c  / n)));
+                //  printf("y=%lf deltaY=%lf e, %lf  deltaT=%lf\n", y, deltaY, deltaY / y * c,  deltaT);
         }
 
         return deltaT;
@@ -149,6 +183,22 @@ void showArray( double P[], int n)
 }
 //interval 间隔
 //Multivariate function
+
+//进度
+void schedule(  long int t , int m )
+{
+        double x = 0;
+        x = (Pmax - Pmin) / MIN_INTERVAL ;
+        x =  pow(  x, m ) ;
+        double s = 0;
+
+        s = t / x;
+
+        printf( "  %lf  %% ", s * 100);
+
+
+}
+
 
 double  calculateMultivariateFunction ( FILE * fp  )
 {
@@ -188,33 +238,34 @@ double  calculateMultivariateFunction ( FILE * fp  )
                         {
                                 Result[i] = x[i];
                         }
-                        if (times % 10000== 0)
+                        if (times % 100 == 0)
                         {
-                              //  printf("  上升 \n");
+                                //  printf("  上升 \n");
                                 printf("  tempY  \n Result  \n");
                                 showArray(Result, xAmount);
 
                                 //  printf("  xx \n");
                                 //  showArray(x, xAmount);
                                 debug = 1;
-                               //  getchar( );
+                                //  getchar( );
                         }
 
-                        deltaT = adjustmentInterval(  (maxY - tempY), maxY );
-                         maxY = tempY;
+                        deltaT = adjustmentInterval(  tempY, maxY  );
+                        maxY = tempY;
                         debug = 0;
-                  //      getchar( );
+                        //      getchar( );
                 }
                 else
                 {
                         //   printf("  下降 \n");
-                        deltaT = adjustmentInterval(  (maxY - tempY), tempY  );
+                        deltaT = adjustmentInterval(  tempY, maxY  );
 
                 }
                 //
                 times++;
 
                 /*
+                //schedule
                 //    if ( 2 - Result[1] < absError)
                 if ( (2 - x[1] < absError) && ( x[1] - 2 < absError))
                 {
@@ -248,6 +299,17 @@ int test ( )
 {
         FILE * fp = NULL;
 
+        //   printf( "  %f ",min( 4,-5.6) ) ;
+        debug = 1;
+        int i, j;
+        for (i = 0; i < 20; i++)
+        {
+                for (j = 0; j < 20; j++)
+                {
+                        //                     adjustmentInterval( i, j  );
+                }
+        }
+        // adjustmentInterval( -1, -5.6  );
         calculateMultivariateFunction (  fp  );
         return 0;
 }
